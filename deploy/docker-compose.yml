@@ -1,0 +1,46 @@
+# 서버(AWS EC2 t3.micro) 전용. 로컬 개발용은 프로젝트 루트의 docker-compose.yml.
+# 비밀번호는 같은 폴더의 .env에서 읽는다. .env는 커밋하지 않는다.
+#
+# 사용법:
+#   cd ~/WMS-Web/deploy
+#   docker compose up -d
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: wms-mysql
+
+    # 서버가 재부팅되거나 컨테이너가 죽어도 자동으로 다시 뜬다.
+    # 24시간 도는 서버에서는 필수. 개발 PC에서는 필요 없었다.
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: wms
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Seoul
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # 서버 RAM이 1GB뿐이라 로컬(512MB)보다 낮췄다.
+      # 여기서 잰 숫자는 성능 측정에 쓰지 않으므로 문제되지 않는다.
+      - --innodb-buffer-pool-size=134217728
+
+    ports:
+      # 앞에 127.0.0.1을 붙이면 서버 안에서만 접속할 수 있다.
+      # 이걸 빼면 인터넷 전체에 DB가 열려 봇들이 로그인을 시도한다.
+      - "127.0.0.1:3306:3306"
+
+    volumes:
+      - wms-mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  wms-mysql-data:
