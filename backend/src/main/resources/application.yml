@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: wms-web
+
+  datasource:
+    # compose에서 포트를 3307로 옮겼다 (로컬 MySQL과 충돌 방지)
+    url: jdbc:mysql://localhost:3307/wms?characterEncoding=UTF-8
+    username: wms
+    password: wmspass
+
+  jpa:
+    hibernate:
+      # 테이블은 Flyway가 만든다. JPA는 엔티티와 실제 테이블이 맞는지 검사만 한다.
+      ddl-auto: validate
+    # 기본값 true면 컨트롤러까지 영속성 컨텍스트가 살아 있어 N+1이 숨는다.
+    # false로 두면 서비스 계층을 벗어날 때 드러난다.
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+
+logging:
+  level:
+    # JPA가 실제로 날리는 SQL을 본다. N+1을 눈으로 확인하는 통로.
+    # 3주차 측정 시에는 반드시 끌 것 — 로깅 자체가 성능을 깎는다.
+    org.hibernate.SQL: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+# 최적화 설정(default_batch_fetch_size, 캐시 등)은 일부러 넣지 않았다.
+# 처음부터 넣으면 3주차 Before 측정이 불가능해진다.
