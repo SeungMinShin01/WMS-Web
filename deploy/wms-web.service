@@ -10,8 +10,10 @@ WorkingDirectory=/home/ubuntu/app
 # DB 접속 정보는 이 파일에서 읽는다. 서버에서 직접 만들고 chmod 600.
 EnvironmentFile=/etc/wms-web.env
 
-# 서버 RAM이 1GB뿐이라 힙을 제한한다. 안 걸면 JVM이 넉넉히 잡아 스왑을 심하게 쓴다.
-ExecStart=/usr/bin/java -Xms128m -Xmx512m -jar /home/ubuntu/app/wms-web.jar
+# 서버 RAM이 1GB뿐이라 힙을 제한한다.
+# 처음에 512m으로 잡았다가 MySQL·OS와 합쳐 1GB를 넘겨 서버가 멈췄다.
+# 작은 Spring Boot 앱은 256m으로 충분하다.
+ExecStart=/usr/bin/java -Xms128m -Xmx256m -jar /home/ubuntu/app/wms-web.jar
 
 SuccessExitStatus=143
 Restart=always

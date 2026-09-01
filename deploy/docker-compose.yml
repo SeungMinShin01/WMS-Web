@@ -25,8 +25,9 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       # 서버 RAM이 1GB뿐이라 로컬(512MB)보다 낮췄다.
+      # 128MB로 시작했다가 JVM과 합쳐 메모리가 터져 64MB로 더 낮춤.
       # 여기서 잰 숫자는 성능 측정에 쓰지 않으므로 문제되지 않는다.
-      - --innodb-buffer-pool-size=134217728
+      - --innodb-buffer-pool-size=67108864
 
     ports:
       # 앞에 127.0.0.1을 붙이면 서버 안에서만 접속할 수 있다.
