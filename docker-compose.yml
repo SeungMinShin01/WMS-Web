@@ -1,0 +1,41 @@
+# 로컬 개발용. 앱(Spring Boot, React)은 컨테이너에 넣지 않고 IDE에서 직접 실행한다.
+# 여기 적힌 계정은 로컬 전용이다. 배포용 계정은 절대 이 파일에 쓰지 않는다.
+# Redis는 3주차 캐싱 단계에서 추가한다 (도입 시점이 커밋 이력에 남도록).
+
+services:
+  mysql:
+    image: mysql:8.0
+    # 3주차 측정을 시작하기 전에 정확한 패치 버전으로 고정할 것 (예: mysql:8.0.39)
+    # 측정 중간에 이미지가 바뀌면 Before/After 비교가 무너진다.
+    container_name: wms-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: wmsroot
+      MYSQL_DATABASE: wms
+      MYSQL_USER: wms
+      MYSQL_PASSWORD: wmspass
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      # 버퍼 풀 크기를 명시한다. 기본값(128M)은 환경에 따라 달라질 수 있고,
+      # 이 값이 바뀌면 같은 쿼리도 다른 속도가 나온다. 측정 조건을 코드로 고정하는 것.
+      - --innodb-buffer-pool-size=536870912
+      # 1초 넘는 쿼리를 기록한다. 3주차에 어떤 쿼리가 느린지 찾는 출발점.
+      - --slow-query-log=1
+      - --long-query-time=1
+    ports:
+      # 로컬에 MySQL이 이미 깔려 있어도 충돌하지 않도록 3307을 쓴다.
+      - "3307:3306"
+    volumes:
+      # named volume — 바인드 마운트로 C:\ 경로를 물리면 WSL 경계를 넘나들며
+      # 디스크 I/O가 몇 배 느려지고 3주차 측정 숫자가 통째로 왜곡된다.
+      - wms-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pwmsroot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  wms-mysql-data:
+

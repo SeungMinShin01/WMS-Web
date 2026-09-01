@@ -1,0 +1,37 @@
+# Java / Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Node
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# 환경변수 · 비밀값 (절대 커밋 금지)
+.env
+.env.*
+!.env.example
+application-local.yml
+application-prod.yml
+
+# 로그 · 측정 산출물
+*.log
+logs/
+perf/results/*.json
+perf/seed/*.csv
+
+# OS
+.DS_Store
+Thumbs.db
